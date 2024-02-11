@@ -1,0 +1,6 @@
+opencv-python
+numpy
+keras
+scikit-learn
+bayesian-optimization
+tensorflow
