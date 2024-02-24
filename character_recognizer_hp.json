@@ -1,0 +1,18 @@
+{
+    "conv_architecture": [
+        95,
+        191,
+        383
+    ],
+    "dense_architecture": [
+        160
+    ],
+    "num_classes": 62,
+    "input_shape": [
+        64,
+        64,
+        3
+    ],
+    "epochs": 25,
+    "batch_size": 64
+}

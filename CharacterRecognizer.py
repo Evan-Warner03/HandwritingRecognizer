@@ -1,6 +1,7 @@
 import os
 import csv
 import cv2
+import json
 import numpy as np
 from sklearn.model_selection import train_test_split
 from bayes_opt import BayesianOptimization
@@ -131,12 +132,12 @@ class CharacterRecognizer(object):
         # computes the hyperparameters that maximize validation accuracy using Bayesian Optimization
         # set bounds for hyperparameters (based on past experience with character recognizers)
         pbounds = {
-            'num_conv_layers': (1, 3), 
-            'min_conv_size': (32, 128),
-            'conv_increasing': (0, 1),
+            'num_conv_layers': (2, 4), 
+            'min_conv_size': (64, 128),
+            'conv_increasing': (1, 1),
             'num_dense_layers': (1, 3), 
-            'min_dense_size': (32, 512),
-            'dense_increasing': (0, 1),
+            'min_dense_size': (128, 512),
+            'dense_increasing': (1, 1),
             'num_epochs': (25, 25),
             'batch_size': (64, 64)
         }
@@ -152,7 +153,7 @@ class CharacterRecognizer(object):
         # maximize the validation accuracy
         optimizer.maximize(
             init_points=2,
-            n_iter=1,
+            n_iter=30,
         )
 
         print(optimizer)
@@ -171,6 +172,39 @@ class CharacterRecognizer(object):
             # build the model and load the weights
             self.build_model()
             self.model.load_weights(model_path)
+    
+
+    def save_hyperparameters(self, save_path="character_recognizer_hp.json"):
+        # saves the model hyperparameters to a json
+        hyperparameters = {
+            "conv_architecture": self.conv_architecture,
+            "dense_architecture": self.dense_architecture,
+            "num_classes": self.num_classes,
+            "input_shape": self.input_shape,
+            "epochs": self.epochs,
+            "batch_size": self.batch_size
+        }
+
+        with open(save_path, "w") as f:
+            json.dump(hyperparameters, f, indent=4)
+    
+
+    def load_hyperparameters(self, hyperparameter_path):
+        # loads the model hyperparameters from a json
+        with open(hyperparameter_path) as f:
+            hyperparemeters = json.load(f)
+        self.conv_architecture = hyperparameters["conv_architecture"]
+        self.dense_architecture = hyperparameters["dense_architecture"]
+        self.num_classes = hyperparameters["num_classes"]
+        self.input_shape = hyperparameters["input_shape"]
+        self.epochs = hyperparameters["epochs"]
+        self.batch_size = hyperparameters["batch_size"]
+    
+
+    def classify_characters(self, characters):
+        # returns the list of classified characters
+        return self.model.predict(characters)
+
         
 
 if __name__ == "__main__":
@@ -183,3 +217,7 @@ if __name__ == "__main__":
 
     # find optimal hyperparemeters
     cr.compute_optimal_hyperparamenters()
+
+    # save model and hyperparameters
+    cr.save_model()
+    cr.save_hyperparameters()
