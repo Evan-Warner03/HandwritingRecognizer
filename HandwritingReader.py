@@ -12,11 +12,20 @@ if __name__ == "__main__":
 
     # segment the image into individual characters
     detector = CharacterDetector(test_img)
+    print("Loaded Character Detector")
     characters = detector.segment_characters()
+    print("Segmented Characters")
 
     # classify the individual characters
     recognizer = CharacterRecognizer()
-    recognizer.load_model("character_recognizer.h5")
-    characters = recognizer.classify_characters(characters)
+    recognizer.load_hyperparameters("character_recognizer_hp.json")
+    recognizer.load_model("character_recognizer_model.h5")
+    recognizer.load_encodings("character_recognizer_encodings.json")
+    print("Loaded Character Recognizer")
+    character_predictions = recognizer.classify_characters(characters)
+    print("Classified characters")
 
-    print(characters)
+    out = ""
+    for pred, conf in character_predictions:
+        out += pred
+    print(out)

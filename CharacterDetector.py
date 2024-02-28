@@ -47,17 +47,20 @@ class CharacterDetector(object):
         binary_image_height, binary_image_width = binary_image.shape[:2]
 
         # split the image into individual lines of text
-        text_lines = self.get_image_line_dimensions(binary_image, binary_image_height)
+        text_lines = self.get_image_line_dimensions(binary_image, binary_image_height, padding=30)
         
         # split each line of text into individual characters
         # we transpose the image and take advantage of our existing line splitter
-        c = 0
+        chars = []
         for line_upper_bound, line_lower_bound in text_lines:
             transposed_text_line = cv2.transpose(binary_image[line_upper_bound:line_lower_bound])
             char_lines = self.get_image_line_dimensions(transposed_text_line, binary_image_width, threshold=5, minimum_size=20, padding=0)
             for char_upper_bound, char_lower_bound in char_lines:
-                cv2.imwrite(f"./line_crops/char_{c}.jpg", binary_image[line_upper_bound:line_lower_bound, char_upper_bound:char_lower_bound])
-                c += 1
+                chars.append(self.image[line_upper_bound:line_lower_bound, char_upper_bound:char_lower_bound])
+        
+        # return the segmented characters
+        return chars
+
     
 if __name__ == "__main__":
     test_img = cv2.imread("./Test Images/IMG_2360.jpg")
