@@ -272,7 +272,7 @@ class CharacterRecognizer(object):
 
         # generate the predictions
         characters = np.array(characters)
-        preds = self.model.predict(characters)
+        preds = self.model.predict(characters, verbose=0)
 
         # convert the predictions back to text via encodings
         final_predictions = []

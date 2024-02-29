@@ -8,7 +8,7 @@ def read_handwriting(image_path):
 
 if __name__ == "__main__":
     # load image
-    test_img = cv2.imread("./Test Images/IMG_2360.jpg")
+    test_img = cv2.imread("./Test Images/IMG_4708.jpg")
 
     # segment the image into individual characters
     detector = CharacterDetector(test_img)
@@ -22,10 +22,15 @@ if __name__ == "__main__":
     recognizer.load_model("character_recognizer_model.h5")
     recognizer.load_encodings("character_recognizer_encodings.json")
     print("Loaded Character Recognizer")
-    character_predictions = recognizer.classify_characters(characters)
-    print("Classified characters")
 
+    print("Recognized Text:")
     out = ""
-    for pred, conf in character_predictions:
-        out += pred
+    for char in characters:
+        if char in ["\n", " "]:
+            out += char
+        else:
+            try:
+                out += recognizer.classify_characters([char])[0][0].lower()
+            except:
+                pass
     print(out)
