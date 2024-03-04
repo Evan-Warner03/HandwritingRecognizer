@@ -35,7 +35,7 @@ class CharacterDetector(object):
 
         # determine the final line dimensions
         text_lines = []
-        for i in range(len(line_upper_bounds)-1):
+        for i in range(len(line_upper_bounds)):
             if abs(line_lower_bounds[i] - line_upper_bounds[i]) > minimum_size:
                 text_lines.append([line_upper_bounds[i] - padding, line_lower_bounds[i] + padding])
         return text_lines
@@ -48,6 +48,14 @@ class CharacterDetector(object):
 
         # split the image into individual lines of text
         text_lines = self.get_image_line_dimensions(binary_image, binary_image_height, minimum_size=20, padding=30)
+        c2 = 0
+        for line_upper_bound, line_lower_bound in text_lines:
+            print("final:", line_upper_bound, line_lower_bound)
+            img2 = self.image.copy()
+            cv2.line(img2, (0, line_upper_bound), (binary_image_width, line_upper_bound), (255, 0, 0), 5)
+            cv2.line(img2, (0, line_lower_bound), (binary_image_width, line_lower_bound), (0, 0, 255), 5)
+            cv2.imwrite(f'line_{c2}.jpg', img2)
+            c2 += 1
         
         # split each line of text into individual characters
         # we transpose the image and take advantage of our existing line splitter

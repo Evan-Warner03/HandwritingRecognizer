@@ -65,8 +65,10 @@ class CharacterRecognizer(object):
         return normalized
     
 
-    def load_dataset(self, dataset_path, test_size=0.1):
+    def load_dataset(self, dataset_path, test_size=0.1, exclude_list=None):
         # initialize train data and encoding map
+        if exclude_list is None:
+            exclude_list = []
         X_train, y_train = [], []
         one_hot_encoding = {}
 
@@ -78,6 +80,8 @@ class CharacterRecognizer(object):
             for row in tqdm(labels_reader):
                 # read the class label and load the image with cv2
                 img_path, label = row
+                if label in exclude_list:
+                    continue
                 img = cv2.imread(os.path.join(dataset_path, img_path))
                 processed_img = self.preprocess_image(img)
                 X_train.append(processed_img)
@@ -289,7 +293,7 @@ if __name__ == "__main__":
 
     # load data
     print("Loading Data...")
-    cr.load_dataset("character_dataset")
+    cr.load_dataset("character_dataset", exclude_list=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])
     cr.save_encodings()
     print("Loaded Data!")
 
