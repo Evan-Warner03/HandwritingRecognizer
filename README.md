@@ -1,5 +1,5 @@
 # HandwritingRecognizer
-A program that allows you to convert images of handwriting into plain text. Very useful for quickly digitizing handwritten lecture notes or assignment solutions.
+A program that allows you to convert images of handwriting into plain text. Very useful for quickly digitizing handwritten lecture notes or assignment solutions. Recommended to be used in tandem with spellchecker to fix small recognition mistakes.
 
 <br>
 
@@ -20,7 +20,15 @@ python HandwritingReader.py path/to/your/image.py
 ```
 python HandwritingReader.py test_images/IMG_4708.jpg
 ```
-![Example With a Handwritten Assignment Answer](https://github.com/Evan-Warner03/HandwritingRecognizer/blob/e1a9c9f6841ab59a800ce459009f03a84fc2b7a4/test_images/example.jpg?raw=true)
+### Input Image
+![Handwritten Assignment Answer](https://github.com/Evan-Warner03/HandwritingRecognizer/blob/c5437fcb063a170e8aa6b9d58171d80e7db87a70/test_images/IMG_4708.jpg?raw=true)
+
+### Character Detection Bounding Boxes
+![Detected Character Bounding Boxes](https://github.com/Evan-Warner03/HandwritingRecognizer/blob/c5437fcb063a170e8aa6b9d58171d80e7db87a70/source_images/segmented.jpg?raw=true)
+
+### Plain Text Output
+![Plain Text Output](https://github.com/Evan-Warner03/HandwritingRecognizer/blob/c5437fcb063a170e8aa6b9d58171d80e7db87a70/source_images/text.jpg?raw=true)  
+(Perfect formatting and over 80% character accuracy even with messy handwriting!)
 
 <br>
 
