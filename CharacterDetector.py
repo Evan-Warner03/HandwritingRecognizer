@@ -74,7 +74,7 @@ class CharacterDetector(object):
         chars = []
         for line_upper_bound, line_lower_bound in text_lines:
             transposed_text_line = cv2.transpose(binary_image[line_upper_bound:line_lower_bound])
-            char_lines = self.get_image_line_dimensions(transposed_text_line, binary_image_width, threshold=2, minimum_size=5, padding=2)
+            char_lines = self.get_image_line_dimensions(transposed_text_line, binary_image_width, threshold=2, minimum_size=8, padding=2)
 
             # add debugging lines for character segmentation
             if debugging:
