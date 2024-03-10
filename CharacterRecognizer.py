@@ -240,7 +240,7 @@ class CharacterRecognizer(object):
         return optimizer.max
     
 
-    def save_model(self, save_path="character_recognizer_model.h5"):
+    def save_model(self, save_path="model_files/character_recognizer_model.h5"):
         """Saves the model weights to the specified save path
 
         """
@@ -259,7 +259,7 @@ class CharacterRecognizer(object):
             self.model.load_weights(model_path)
     
 
-    def save_hyperparameters(self, save_path="character_recognizer_hp.json"):
+    def save_hyperparameters(self, save_path="model_files/character_recognizer_hp.json"):
         """Saves the model hyperparameters to a json
 
         """
@@ -290,11 +290,11 @@ class CharacterRecognizer(object):
         self.batch_size = hyperparameters["batch_size"]
 
     
-    def save_encodings(self):
+    def save_encodings(self, save_path="model_files/character_recognizer_encodings.json"):
         """Saves encoding to json
 
         """
-        with open("character_recognizer_encodings.json", "w") as f:
+        with open(save_path, "w") as f:
             json.dump(self.encodings, f, indent=4)
     
 
@@ -330,20 +330,20 @@ class CharacterRecognizer(object):
 
 if __name__ == "__main__":
     # initialize a CharacterRecognizer
-    cr = CharacterRecognizer()
+    recognizer = CharacterRecognizer()
     optimize = False
 
     # load data
-    cr.load_dataset("character_dataset", exclude_list=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])
-    cr.save_encodings()
+    recognizer.load_dataset("character_dataset", exclude_list=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])
+    recognizer.save_encodings()
 
     if optimize:
         # find optimal hyperparemeters
-        optimal = cr.compute_optimal_hyperparameters()
+        optimal = recognizer.compute_optimal_hyperparameters()
         print(optimal)
     else:
         # build model with optimal hyperparameters
-        cr.test_hyperparameters(
+        recognizer.test_hyperparameters(
             num_conv_layers=5,
             min_conv_size=128,
             conv_increasing=1,
@@ -355,5 +355,5 @@ if __name__ == "__main__":
         )
 
         # save model and hyperparameters
-        cr.save_model()
-        cr.save_hyperparameters()
+        recognizer.save_model()
+        recognizer.save_hyperparameters()

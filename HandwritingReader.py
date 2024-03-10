@@ -33,4 +33,6 @@ def read_handwriting(image_path):
 
 
 if __name__ == "__main__":
-    print(read_handwriting(sys.argv[1]))
+    handwriting = read_handwriting(sys.argv[1])
+    with open("recognized_handwriting.txt", "w") as f:
+        f.write(handwriting)
