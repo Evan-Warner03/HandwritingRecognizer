@@ -48,7 +48,10 @@ class CharacterRecognizer(object):
     
 
     def preprocess_image(self, image):
-        # resizes image to expected size and normalizes pixel value to [0, 1]
+        """Resizes image to self.input_shape
+        
+        and normalizes pixel values to [0, 1].
+        """
         # first find and crop image to largest shape only
         grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         _, grayscale = cv2.threshold(grayscale, 127, 255, cv2.THRESH_BINARY_INV)
@@ -77,6 +80,12 @@ class CharacterRecognizer(object):
     
 
     def load_dataset(self, dataset_path, test_size=0.1, exclude_list=None):
+        """Loads images and labels from dataset_path.
+
+        There should be a <dataset_path>/labels.csv containing all labels
+
+        and a <dataset_path>/Img/ containing all images. 
+        """
         # initialize train data and encoding map
         if exclude_list is None:
             exclude_list = []
@@ -122,7 +131,9 @@ class CharacterRecognizer(object):
 
     
     def build_model(self):
-        # builds a CNN with the specified architecture
+        """Builds a CNN using self's specified hyperparameters
+
+        """
         model = Sequential()
 
         # add convolutional architecture
@@ -148,7 +159,9 @@ class CharacterRecognizer(object):
     
 
     def test_hyperparameters(self, num_conv_layers, min_conv_size, conv_increasing, num_dense_layers, min_dense_size, dense_increasing, num_epochs, batch_size):
-        # computes the validation accuracy of the model trained with the specified hyperparameters
+        """Computes the validation accuracy of the model trained with the specified hyperparameters
+
+        """
         num_classes = self.num_classes
         input_shape = self.X_train[0].shape
     
@@ -184,6 +197,9 @@ class CharacterRecognizer(object):
 
 
     def compute_optimal_hyperparameters(self):
+        """Uses Bayesian Optmization to determine optimal hyperparameters for the CharacterRecognizer
+
+        """
         # computes the hyperparameters that maximize validation accuracy using Bayesian Optimization
         # set bounds for hyperparameters (based on past experience with character recognizers)
         cr.test_hyperparameters(
@@ -225,12 +241,16 @@ class CharacterRecognizer(object):
     
 
     def save_model(self, save_path="character_recognizer_model.h5"):
-        # saves the model weights to the specified save path
+        """Saves the model weights to the specified save path
+
+        """
         self.model.save_weights(save_path)
     
 
     def load_model(self, model_path):
-        # loads the model weights from the specified model path
+        """Loads the model weights from the specified model path
+
+        """
         if model_path is None:
             return None
         else:
@@ -240,7 +260,9 @@ class CharacterRecognizer(object):
     
 
     def save_hyperparameters(self, save_path="character_recognizer_hp.json"):
-        # saves the model hyperparameters to a json
+        """Saves the model hyperparameters to a json
+
+        """
         hyperparameters = {
             "conv_architecture": self.conv_architecture,
             "dense_architecture": self.dense_architecture,
@@ -255,7 +277,9 @@ class CharacterRecognizer(object):
     
 
     def load_hyperparameters(self, hyperparameter_path):
-        # loads the model hyperparameters from a json
+        """Loads the model hyperparameters from a json file
+
+        """
         with open(hyperparameter_path) as f:
             hyperparameters = json.load(f)
         self.conv_architecture = hyperparameters["conv_architecture"]
@@ -267,22 +291,27 @@ class CharacterRecognizer(object):
 
     
     def save_encodings(self):
-        # saves encoding to json
+        """Saves encoding to json
+
+        """
         with open("character_recognizer_encodings.json", "w") as f:
             json.dump(self.encodings, f, indent=4)
     
 
     def load_encodings(self, encodings_path):
-        # loads encodings from json
+        """Loads encodings from json
+
+        """
         with open(encodings_path) as f:
             self.encodings = json.load(f)
     
 
     def classify_characters(self, characters, preprocess=True):
+        """Classifies a list of unknown characters
+
+        """
         # returns the list of classified characters
         # first resize all of the images
-        cv2.imshow('char', characters[0])
-        cv2.waitKey(0)
         if preprocess:
             for i in range(len(characters)):
                 characters[i] = self.preprocess_image(characters[i])

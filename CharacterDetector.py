@@ -1,28 +1,35 @@
-import os
 import cv2
+import os
+
 
 class CharacterDetector(object):
-    """
-    CharacterDetector segments an image of writing
+    """CharacterDetector segments an image of writing
+
     into individual characters for recognition. It also detects
+
     spaces and formatting.
     """
 
     def __init__(self, image):
         # load the image if it is a path
         if isinstance(image, str):
-            image = cv2.imload(image)
+            image = cv2.imread(image)
         self.image = image
 
     
     def convert_to_inverse_binary(self, image):
+        """Converts an image to inverse binary
+
+        """
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         _, binary_image = cv2.threshold(gray_image, 150, 255, cv2.THRESH_BINARY_INV)
         return binary_image
     
 
-    def get_image_line_dimensions(self, image, image_height, threshold=1, minimum_size=50, padding=30) -> list:
-        # determines the dimensions of the lines of text of a given image
+    def get_image_line_dimensions(self, image, image_height, threshold=1, minimum_size=50, padding=30):
+        """Finds the dimension and location of each line of text in an image
+        
+        """
 
         # start by getting the average of each row
         # the idea is that rows with writing will have higher averages since we converted the image to inverse binary
@@ -44,6 +51,10 @@ class CharacterDetector(object):
         
 
     def segment_characters(self, debugging=False) -> list:
+        """Segments self.image into a list of characters, separated by spaces and newlines
+
+        to separate words and lines as detected
+        """
         # convert the image to inverse binary
         binary_image = self.convert_to_inverse_binary(self.image)
         binary_image_height, binary_image_width = binary_image.shape[:2]

@@ -1,34 +1,36 @@
 import cv2
+import sys
 
 from CharacterDetector import CharacterDetector
 from CharacterRecognizer import CharacterRecognizer
 
+
 def read_handwriting(image_path):
-    # reads the handwriting in the given image, and returns it as plain text
-    detector = CharacterDetector()
+    """Returns the recognized handwriting from the image located at image_path
 
-if __name__ == "__main__":
-    # load image
-    test_image_path = sys.argv[1]
-
-    # segment the image into individual characters
-    detector = CharacterDetector(test_image_path)
-    characters = detector.segment_characters(debugging=True)
+    """
+    # segment image into characters
+    detector = CharacterDetector(image_path)
+    characters = detector.segment_characters(debugging=False) # enable debugging to see bounding box of characters
 
     # classify the individual characters
     recognizer = CharacterRecognizer()
-    recognizer.load_hyperparameters("character_recognizer_hp.json")
-    recognizer.load_model("character_recognizer_model.h5")
-    recognizer.load_encodings("character_recognizer_encodings.json")
+    recognizer.load_hyperparameters("model_files/character_recognizer_hp.json")
+    recognizer.load_model("model_files/character_recognizer_model.h5")
+    recognizer.load_encodings("model_files/character_recognizer_encodings.json")
 
-    print("Recognized Text:")
-    out = ""
+    # format the classified characters
+    recognized_writing = ""
     for char in characters:
+        # if the character is a space or newline, simply add it to the output
         if isinstance(char, str):
-            out += char
+            recognized_writing += char
         else:
-            try:
-                out += recognizer.classify_characters([char])[0][0].lower()
-            except:
-                pass
-    print(out)
+            # otherwise classify the character
+            prediction, confidence = recognizer.classify_characters([char])[0]
+            recognized_writing += prediction
+    return recognized_writing.lower()
+
+
+if __name__ == "__main__":
+    print(read_handwriting(sys.argv[1]))
