@@ -1,17 +1,15 @@
-import os
 import csv
 import cv2
 import json
-import numpy as np
-from tqdm import tqdm
-from bayes_opt import BayesianOptimization
-from sklearn.model_selection import train_test_split
+import os
 
-# model building imports
-import keras                              
-from keras.models import Sequential     
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Conv2D, MaxPooling2D
+from bayes_opt import BayesianOptimization
+import keras
+from keras.layers import Dense, Dropout, Activation, Flatten, Conv2D, MaxPooling2D
+from keras.models import Sequential
+import numpy as np
+from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 
 # surpress warnings
 import warnings
@@ -19,9 +17,22 @@ warnings.filterwarnings('ignore')
 
 
 class CharacterRecognizer(object):
+    """CharacterRecognizer is a CNN with built in training, optimization,
+
+    and prediction methods. You can save and load internal and external models,
+
+    by specifying a weight file, encodings file, and hyperparameter file.
+    """
 
 
-    def __init__(self, model_path=None, encodings=None, input_shape=(32, 32, 1), num_classes=62, conv_architecture=[], dense_architecture=[], epochs=25, batch_size=64):
+    def __init__(self, model_path=None, encodings=None, input_shape=(32, 32, 1), num_classes=62, conv_architecture=None, dense_architecture=None, epochs=25, batch_size=64):
+        # resolve kwargs
+        if conv_architecture is None:
+            conv_architecture = []
+        if dense_architecture is None:
+            dense_architecture = []
+
+        # initialize variables
         self.model = self.load_model(model_path)
         self.encodings = encodings
         self.input_shape = input_shape
@@ -210,7 +221,7 @@ class CharacterRecognizer(object):
             n_iter=10,
         )
 
-        print(optimizer.max)
+        return optimizer.max
     
 
     def save_model(self, save_path="character_recognizer_model.h5"):
@@ -270,6 +281,8 @@ class CharacterRecognizer(object):
     def classify_characters(self, characters, preprocess=True):
         # returns the list of classified characters
         # first resize all of the images
+        cv2.imshow('char', characters[0])
+        cv2.waitKey(0)
         if preprocess:
             for i in range(len(characters)):
                 characters[i] = self.preprocess_image(characters[i])
@@ -292,14 +305,13 @@ if __name__ == "__main__":
     optimize = False
 
     # load data
-    print("Loading Data...")
     cr.load_dataset("character_dataset", exclude_list=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])
     cr.save_encodings()
-    print("Loaded Data!")
 
     if optimize:
         # find optimal hyperparemeters
-        cr.compute_optimal_hyperparameters()
+        optimal = cr.compute_optimal_hyperparameters()
+        print(optimal)
     else:
         # build model with optimal hyperparameters
         cr.test_hyperparameters(

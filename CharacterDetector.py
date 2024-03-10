@@ -9,13 +9,15 @@ class CharacterDetector(object):
     """
 
     def __init__(self, image):
+        # load the image if it is a path
+        if isinstance(image, str):
+            image = cv2.imload(image)
         self.image = image
 
     
     def convert_to_inverse_binary(self, image):
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         _, binary_image = cv2.threshold(gray_image, 150, 255, cv2.THRESH_BINARY_INV)
-        cv2.imwrite('binary.jpg', binary_image)
         return binary_image
     
 
@@ -41,41 +43,39 @@ class CharacterDetector(object):
         return text_lines
         
 
-    def segment_characters(self) -> list:
+    def segment_characters(self, debugging=False) -> list:
         # convert the image to inverse binary
         binary_image = self.convert_to_inverse_binary(self.image)
         binary_image_height, binary_image_width = binary_image.shape[:2]
 
         # split the image into individual lines of text
         text_lines = self.get_image_line_dimensions(binary_image, binary_image_height, minimum_size=20, padding=30)
-        c2 = 0
-        for line_upper_bound, line_lower_bound in text_lines:
-            print("final:", line_upper_bound, line_lower_bound)
-            img2 = self.image.copy()
-            cv2.line(img2, (0, line_upper_bound), (binary_image_width, line_upper_bound), (255, 0, 0), 5)
-            cv2.line(img2, (0, line_lower_bound), (binary_image_width, line_lower_bound), (0, 0, 255), 5)
-            cv2.imwrite(f'line_{c2}.jpg', img2)
-            c2 += 1
-        
+
+        # add debugging lines for line segmentation
+        segmented_img = self.image.copy()
+        if debugging:
+            for line_upper_bound, line_lower_bound in text_lines:
+                cv2.line(segmented_img, (0, line_upper_bound), (binary_image_width, line_upper_bound), (0, 0, 255), 5)
+                cv2.line(segmented_img, (0, line_lower_bound), (binary_image_width, line_lower_bound), (0, 0, 255), 5)
+            
         # split each line of text into individual characters
         # we transpose the image and take advantage of our existing line splitter
         chars = []
-        c = 0
         for line_upper_bound, line_lower_bound in text_lines:
             transposed_text_line = cv2.transpose(binary_image[line_upper_bound:line_lower_bound])
-            char_lines = self.get_image_line_dimensions(transposed_text_line, binary_image_width, threshold=2, minimum_size=10, padding=2)
+            char_lines = self.get_image_line_dimensions(transposed_text_line, binary_image_width, threshold=2, minimum_size=5, padding=2)
+
+            # add debugging lines for character segmentation
+            if debugging:
+                for char_upper_bound, char_lower_bound in char_lines:
+                    cv2.line(segmented_img, (char_upper_bound, line_upper_bound), (char_upper_bound, line_lower_bound), (255, 0, 0), 5)
+                    cv2.line(segmented_img, (char_lower_bound, line_upper_bound), (char_lower_bound, line_lower_bound), (0, 0, 255), 5)
 
             # save individual characters into array, separated by spaces between words and newlines between lines
             # find average character width, which will be used as a benchmark to determine when a word ends
             if len(char_lines):
                 avg_char_width = sum([lower-upper for upper, lower in char_lines])/len(char_lines)
                 prev = char_lines[0][0]
-            img2 = self.image.copy()
-            for char_upper_bound, char_lower_bound in char_lines:
-                cv2.line(img2, (char_upper_bound, line_upper_bound), (char_upper_bound, line_lower_bound), (255, 0, 0), 5)
-                cv2.line(img2, (char_lower_bound, line_upper_bound), (char_lower_bound, line_lower_bound), (0, 0, 255), 5)
-            cv2.imwrite(f'img_{c}.jpg', img2)
-            c += 1
             for char_upper_bound, char_lower_bound in char_lines:
                 # if there is a space between characters three or more times the width of the characters
                 # this is a new word, so we should add a space
@@ -87,11 +87,9 @@ class CharacterDetector(object):
             # add a newline between each line
             chars.append("\n")
         
+        # save the debugging image
+        if debugging:
+            cv2.imwrite("segmented.jpg", segmented_img)
+
         # return the segmented characters
         return chars
-
-    
-if __name__ == "__main__":
-    test_img = cv2.imread("./Test Images/IMG_2360.jpg")
-    cd = CharacterDetector(test_img)
-    cd.segment_characters()
