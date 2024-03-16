@@ -1,5 +1,5 @@
 # HandwritingRecognizer
-A program that allows you to convert images of handwriting into plain text. Very useful for quickly digitizing handwritten lecture notes or assignment solutions. Recommended to be used in tandem with spellchecker to fix small recognition mistakes.
+A program that converts images of handwriting into plain text. Very useful for quickly digitizing handwritten lecture notes or assignment solutions. Recommended to be used in tandem with spellchecker to fix small recognition mistakes.
 
 <br>
 
